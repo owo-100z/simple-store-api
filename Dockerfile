@@ -4,7 +4,8 @@ FROM ghcr.io/puppeteer/puppeteer:latest
 # Puppeteer가 이미 내장된 Chromium을 사용하도록 환경 변수를 설정합니다.
 # /usr/bin/google-chrome-stable은 puppeteer 이미지가 Chromium을 설치하는 일반적인 경로입니다.
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
-ENV PUPPETEER_SKIP_DOWNLOAD=true # 이미지에 이미 Chromium이 있으므로 추가 다운로드 방지
+ # 이미지에 이미 Chromium이 있으므로 추가 다운로드 방지
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 USER root
 WORKDIR /app
