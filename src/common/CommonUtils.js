@@ -9,10 +9,19 @@ const headers =  {
 };
 
 const loginInfo = {
-    baemin: {id: 'bssi1964', password: '162121bssi'},
-    coupang: {id: 'bssi1964', password: 'bssi1964!'},
-    ddangyo: {id: 'spsp4131', password: '12qw12qw12qw'},
-}
+  baemin: {
+    id: process.env.BAEMIN_ID,
+    password: process.env.BAEMIN_PASSWORD
+  },
+  coupang: {
+    id: process.env.COUPANG_ID,
+    password: process.env.COUPANG_PASSWORD
+  },
+  ddangyo: {
+    id: process.env.DDANGYO_ID,
+    password: process.env.DDANGYO_PASSWORD
+  }
+};
 
 const common = {
     checkBrowser: async (browser) => {
