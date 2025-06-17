@@ -1,14 +1,17 @@
-# Puppeteer 공식 이미지 사용 (모든 시스템 라이브러리 포함)
 FROM ghcr.io/puppeteer/puppeteer:latest
 
-# 작업 디렉토리 지정
 WORKDIR /app
 
-# 소스 복사
-COPY . .
+COPY package.json package-lock.json ./
 
-# 의존성 설치
+# 권한 변경 추가
+RUN chown -R pptruser:pptruser /app
+
+# Puppeteer 이미지는 USER pptruser 로 실행됨 → install도 같은 유저로
+USER pptruser
+
 RUN npm install
 
-# 앱 실행
-CMD ["node", "index.js"]
+COPY . .
+
+CMD ["npm", "start"]
