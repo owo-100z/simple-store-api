@@ -1,13 +1,11 @@
+import './loadEnv.js'; // 꼭 가장 먼저 호출!
+
 // index.js
 import express from 'express';
 import baemin from './src/BaeminController.js';
 import coupang from './src/CoupangController.js';
 import ddangyo from './src/DdangyoController.js';
 import bodyParser from 'body-parser';
-
-if (process.env.NODE_ENV !== 'production') {
-  import('dotenv').then(dotenv => dotenv.config());
-}
 
 
 const app = express();

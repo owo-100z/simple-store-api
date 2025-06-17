@@ -3,24 +3,29 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 puppeteer.use(StealthPlugin());
 
+const DATA_DIR = process.env.DATA_DIR || '/tmp';
+const SESSION_DIR = `${DATA_DIR}/.my-user-data`;
+
 const headers =  {
     'Content-Type': 'application/json; charset=utf-8',
     'service-channel': 'SELF_SERVICE_PC',
 };
 
-const loginInfo = {
-  baemin: {
-    id: process.env.BAEMIN_ID,
-    password: process.env.BAEMIN_PASSWORD
-  },
-  coupang: {
-    id: process.env.COUPANG_ID,
-    password: process.env.COUPANG_PASSWORD
-  },
-  ddangyo: {
-    id: process.env.DDANGYO_ID,
-    password: process.env.DDANGYO_PASSWORD
-  }
+const loginInfo = () => {
+    return {
+        baemin: {
+            id: process.env.BAEMIN_ID,
+            password: process.env.BAEMIN_PASSWORD
+        },
+        coupang: {
+            id: process.env.COUPANG_ID,
+            password: process.env.COUPANG_PASSWORD
+        },
+        ddangyo: {
+            id: process.env.DDANGYO_ID,
+            password: process.env.DDANGYO_PASSWORD
+        }
+    }
 };
 
 const common = {
@@ -42,7 +47,7 @@ const common = {
         console.log('Opening new browser instance...');
         const browser = await puppeteer.launch({
             headless: 'new',
-            userDataDir: './.my-user-data', // 로그인 정보 등 브라우저 세션 저장
+            userDataDir: SESSION_DIR, // 로그인 정보 등 브라우저 세션 저장
             args: ['--no-sandbox', '--disable-setuid-sandbox'] // 서버 환경에서 권장
         });
         return browser;
@@ -61,7 +66,7 @@ const common = {
         }
         return options;
     },
-    loginToBaemin: async (page, userInfo = {...loginInfo.baemin}) => {
+    loginToBaemin: async (page, userInfo = {...loginInfo().baemin}) => {
         console.log('Logging in to Baemin with user:', userInfo.id);
         const baeminLoginURL = 'https://biz-member.baemin.com/login';
         if (page.url().indexOf(baeminLoginURL) < 0) {
@@ -100,7 +105,7 @@ const common = {
             await page.goto(baeminAdminURL, { waitUntil: 'networkidle2' });
             if (page.url().indexOf(baeminAdminURL) < 0) {
                 console.log('Not logged in, attempting to log in...');
-                const login = await common.loginToBaemin(page, {...loginInfo.baemin});
+                const login = await common.loginToBaemin(page, {...loginInfo().baemin});
                 if (login) {
                     await page.goto(baeminAdminURL, { waitUntil: 'networkidle2' });
                 } else {
@@ -109,7 +114,7 @@ const common = {
             }
         }
     },
-    loginToCoupang: async (page, userInfo = {...loginInfo.coupang}) => {
+    loginToCoupang: async (page, userInfo = {...loginInfo().coupang}) => {
         console.log('Logging in to Coupang with user:', userInfo.id);
         const coupangLoginURL = 'https://store.coupangeats.com/merchant/login';
         if (page.url().indexOf(coupangLoginURL) < 0) {
@@ -148,7 +153,7 @@ const common = {
             await page.goto(coupangAdminURL, { waitUntil: 'networkidle2' });
             if (page.url().indexOf('/management/home') < 0) {
                 console.log('Not logged in, attempting to log in...');
-                const login = await common.loginToCoupang(page, {...loginInfo.coupang});
+                const login = await common.loginToCoupang(page, {...loginInfo().coupang});
                 if (login) {
                     await page.goto(coupangAdminURL, { waitUntil: 'networkidle2' });
                 } else {
@@ -157,7 +162,7 @@ const common = {
             }
         }
     },
-    goDdangyoPage: async (page, userInfo = {...loginInfo.ddangyo}) => {
+    goDdangyoPage: async (page, userInfo = {...loginInfo().ddangyo}) => {
         console.log('Go to Ddangyo:', userInfo.id);
         const ddangyouLoginURL = 'https://boss.ddangyo.com';
         if (page.url().indexOf(ddangyouLoginURL) < 0) {
@@ -199,6 +204,7 @@ const common = {
         return true;
     },
     fetchApi: async (page, url, method = 'GET', body = null) => {
+        console.log(`### request URL: ${url}, method: ${method}`);
         const options = common.getOptions(method, body);
         const response = await page.evaluate(async (url, options) => {
             const res = await fetch(url, options);
