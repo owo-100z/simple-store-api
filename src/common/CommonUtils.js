@@ -34,7 +34,14 @@ const common = {
         const browser = await puppeteer.launch({
             headless: true,
             userDataDir: './.my-user-data', // 로그인 정보 등 브라우저 세션 저장
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] // 서버 환경에서 권장
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-zygote',
+                '--disable-gpu',
+            ],
         });
         return browser;
     },
