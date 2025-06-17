@@ -45,10 +45,19 @@ const common = {
     },
     browserOpen: async () => {
         console.log('Opening new browser instance...');
+        const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath();
+
         const browser = await puppeteer.launch({
             headless: 'new',
+            executablePath: executablePath,
             userDataDir: SESSION_DIR, // 로그인 정보 등 브라우저 세션 저장
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] // 서버 환경에서 권장
+            args: [
+                '--disable-setuid-sandbox',
+                '--no-sandbox',
+                '--single-process', // 단일 프로세스 모드는 일부 환경에서 안정성 향상
+                '--no-zygote',      // 샌드박스 없는 환경에서 필요한 경우가 있음
+                '--disable-dev-shm-usage', // Docker 환경에서 /dev/shm 문제를 방지
+            ],
         });
         return browser;
     },
