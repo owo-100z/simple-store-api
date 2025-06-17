@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: simple-store-api
+    env: docker
+    plan: free
+    autoDeploy: true
