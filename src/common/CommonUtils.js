@@ -213,6 +213,7 @@ const common = {
         return true;
     },
     fetchApi: async (page, url, method = 'GET', body = null) => {
+        console.log(`### current page: ${page.url()}`);
         console.log(`### request URL: ${url}, method: ${method}`);
         const options = common.getOptions(method, body);
         const response = await page.evaluate(async (url, options) => {
