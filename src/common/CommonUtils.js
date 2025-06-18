@@ -102,6 +102,8 @@ const common = {
             }
         }
 
+        console.log(`check page url: ${page.url()}`);
+
         await page.evaluate(() => {
             // 로그인 폼 초기화
             document.querySelector('input[name="id"]').value = '';
