@@ -13,7 +13,6 @@ const writeFile = async (fileName, data) => {
         await fs.writeFile(filePath, JSON.stringify(data, null, 2));
         console.log(`File saved successfully at ${filePath}`);
     } catch (error) {
-        console.error('Error creating directory:', error);
         throw error;
     }
 };
@@ -28,7 +27,6 @@ const readFile = async (fileName) => {
         return parsed;
     }
     catch (error) {
-        console.error('Error reading file:', error);
         throw error;
     }
 };

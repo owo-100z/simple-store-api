@@ -40,11 +40,18 @@ const common = {
     checkPage: async (page, browser) => {
         if (!page) {
             page = await browser.newPage();
+
+            page.on('request', request => {
+                const url = request.url();
+                if (url.includes('https://self-api.baemin.com')) {
+                    console.log('## Filtered Request:', request.method(), url);
+                    console.log('## Request Headers:', request.headers());
+                }
+            });
         }
         return page;
     },
     browserOpen: async () => {
-        console.log('Opening new browser instance...');
         const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath();
 
         const browser = await puppeteer.launch({
@@ -52,11 +59,13 @@ const common = {
             executablePath: executablePath,
             userDataDir: SESSION_DIR, // 로그인 정보 등 브라우저 세션 저장
             args: [
+                // 기존 옵션들
                 '--disable-setuid-sandbox',
                 '--no-sandbox',
-                '--single-process', // 단일 프로세스 모드는 일부 환경에서 안정성 향상
-                '--no-zygote',      // 샌드박스 없는 환경에서 필요한 경우가 있음
-                '--disable-dev-shm-usage', // Docker 환경에서 /dev/shm 문제를 방지
+                '--single-process',
+                '--no-zygote',
+                '--disable-dev-shm-usage',
+                '--window-size=1920,1080',
             ],
         });
         return browser;
