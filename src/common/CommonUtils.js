@@ -43,9 +43,25 @@ const common = {
 
             page.on('request', request => {
                 const url = request.url();
-                if (url.includes('https://self-api.baemin.com') && request.method() === 'GET') {
+                const method = request.method();
+                if (url.includes('https://self-api.baemin.com') && method === 'GET') {
                     console.log('## Filtered Request:', request.method(), url);
                     console.log('## Request Headers:', request.headers());
+                    console.log('### request: ', request);
+                }
+            });
+
+            page.on('response', async response => {
+                const url = response.url();
+                const method = request.method();
+                if (url.includes('https://self-api.baemin.com') && method === 'GET') {
+                    console.log('Filtered Response:', response.status(), url);
+                    try {
+                        const data = await response.json();
+                        console.log('Response JSON:', data);
+                    } catch (e) {
+                        // JSON이 아니거나 파싱 실패 시 무시
+                    }
                 }
             });
         }
