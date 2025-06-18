@@ -41,6 +41,12 @@ const common = {
         if (!page) {
             page = await browser.newPage();
 
+            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36');
+            await page.setExtraHTTPHeaders({
+                'accept-language': 'en-US,en;q=0.9',
+                // 필요한 추가 헤더가 있으면 넣기
+            });
+
             page.on('response', async response => {
                 const url = response.url();
                 const status = response.status();
