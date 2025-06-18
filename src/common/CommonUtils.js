@@ -237,6 +237,7 @@ const common = {
                 window._page_console('#####################################');
                 window._page_console(`error: ${JSON.stringify(e)}`);
                 window._page_console('#####################################');
+                throw new Error(e);
             }
             return await res?.json();
         }, url, options);
