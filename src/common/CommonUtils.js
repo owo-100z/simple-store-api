@@ -215,8 +215,20 @@ const common = {
     fetchApi: async (page, url, method = 'GET', body = null) => {
         console.log(`### current page: ${page.url()}`);
         console.log(`### request URL: ${url}, method: ${method}`);
+
+        const alreadyExposed = await page.evaluate((name) => {
+            return typeof window[name] === 'function';
+            }, '_page_console');
+
+        if (!alreadyExposed) {
+            await page.exposeFunction('_page_console', (data) => {
+                console.log(data);
+            })
+        }
+
         const options = common.getOptions(method, body);
         const response = await page.evaluate(async (url, options) => {
+            window._page_console(`url: ${url}\noptions: ${options}`);
             const res = await fetch(url, options);
             return await res.json();
         }, url, options);
