@@ -1,5 +1,6 @@
-# ARM64 아키텍처용 Node.js 이미지 사용 및 Chromium 수동 설치
-FROM arm64v8/node:lts-slim
+# ARM64 아키텍처용 Node.js 이미지 사용 및 Chromium 수동 설치 (local test용)
+# FROM arm64v8/node:lts-slim
+FROM node:lts-slim
 
 # 필요한 Chromium 의존성 설치 (root 권한 필요)
 USER root
