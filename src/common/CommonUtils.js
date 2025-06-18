@@ -229,8 +229,16 @@ const common = {
         const options = common.getOptions(method, body);
         const response = await page.evaluate(async (url, options) => {
             window._page_console(`url: ${url}\noptions: ${JSON.stringify(options)}`);
-            const res = await fetch(url, options);
-            return await res.json();
+            let res;
+            try{
+                res = await fetch(url, options);
+            } catch (e) {
+                window._page_console(e.message);
+                window._page_console('#####################################');
+                window._page_console(`error: ${JSON.stringify(e)}`);
+                window._page_console('#####################################');
+            }
+            return await res?.json();
         }, url, options);
 
         console.log(`API response from ${url}:`, response);
