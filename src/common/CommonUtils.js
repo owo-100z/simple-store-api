@@ -104,6 +104,9 @@ const common = {
 
         console.log(`check page url: ${page.url()}`);
 
+        const html = await page.content();
+        console.log(`current page: ${html}`);
+
         await page.evaluate(() => {
             // 로그인 폼 초기화
             document.querySelector('input[name="id"]').value = '';
