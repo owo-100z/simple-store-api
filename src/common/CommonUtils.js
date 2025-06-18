@@ -41,16 +41,6 @@ const common = {
         if (!page) {
             page = await browser.newPage();
 
-            page.on('request', request => {
-                const url = request.url();
-                const method = request.method();
-                if (url.includes('https://self-api.baemin.com') && method === 'GET') {
-                    console.log('## Filtered Request:', request.method(), url);
-                    console.log('## Request Headers:', request.headers());
-                    console.log('### request: ', request);
-                }
-            });
-
             page.on('response', async response => {
                 const url = response.url();
                 const status = response.status();
