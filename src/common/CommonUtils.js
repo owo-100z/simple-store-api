@@ -228,7 +228,7 @@ const common = {
 
         const options = common.getOptions(method, body);
         const response = await page.evaluate(async (url, options) => {
-            window._page_console(`url: ${url}\noptions: ${options}`);
+            window._page_console(`url: ${url}\noptions: ${JSON.stringify(options)}`);
             const res = await fetch(url, options);
             return await res.json();
         }, url, options);
