@@ -43,7 +43,7 @@ const common = {
 
             page.on('request', request => {
                 const url = request.url();
-                if (url.includes('https://self-api.baemin.com')) {
+                if (url.includes('https://self-api.baemin.com') && request.method() === 'GET') {
                     console.log('## Filtered Request:', request.method(), url);
                     console.log('## Request Headers:', request.headers());
                 }
