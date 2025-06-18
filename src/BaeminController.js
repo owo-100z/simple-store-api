@@ -5,13 +5,15 @@ import common from './common/CommonService.js';
 
 const router = express.Router();
 
+let page, browser;
+
 router.get('/login', async (req, res) => {
     try {
         const userInfo = req.query;
         if (!userInfo?.id || !userInfo.password) {
             return res.status(400).json({ success: false, message: 'ID and password must not be empty.'});
         }
-        const data = await BaeminService.login(userInfo);
+        const data = await BaeminService.login(userInfo, page, browser);
 
         data.browser.close(); // Close the browser after fetching shop info
 
@@ -20,6 +22,7 @@ router.get('/login', async (req, res) => {
         }
         res.json({ success: true, message: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Login error:', error);
         res.status(500).json({ success: false, message: 'Login failed', error: error.message });
     }
@@ -35,7 +38,7 @@ router.get('/shop-info', async (req, res) => {
     }
 
     try {
-        const data = await BaeminService.getShopInfo();
+        const data = await BaeminService.getShopInfo({}, page, browser);
 
         data.browser.close(); // Close the browser after fetching shop info
 
@@ -46,6 +49,7 @@ router.get('/shop-info', async (req, res) => {
         await common.writeFile('baemin-shop-info.json', data.response);
         res.json({ success: true, data: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get shop info error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch shop info', error: error.message });
     }
@@ -73,7 +77,7 @@ router.get('/menu-list', async (req, res) => {
             shopOwnerNumber: parsed.owner.shopOwnerNumber,
         }
 
-        const data = await BaeminService.getMenus(params);
+        const data = await BaeminService.getMenus(params, page, browser);
 
         data.browser.close(); // Close the browser after fetching menu list
 
@@ -83,6 +87,7 @@ router.get('/menu-list', async (req, res) => {
 
         res.json({ success: true, data: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get menu list error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch menu list', error: error.message });
     }
@@ -103,7 +108,7 @@ router.get('/option-list', async (req, res) => {
             shopOwnerNumber: parsed.owner.shopOwnerNumber,
         }
 
-        const data = await BaeminService.getOptions(params);
+        const data = await BaeminService.getOptions(params, page, browser);
 
         data.browser.close(); // Close the browser after fetching option list
 
@@ -113,6 +118,7 @@ router.get('/option-list', async (req, res) => {
 
         res.json({ success: true, data: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get option list error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch option list', error: error.message });
     }
@@ -144,7 +150,6 @@ router.get('/all-menus', async (req, res) => {
         }
 
         let menus = [], options = [];
-        let page = null, browser = null;
 
         while (true) {
             const data = await BaeminService.getMenus(params, page, browser);
@@ -202,6 +207,7 @@ router.get('/all-menus', async (req, res) => {
         await common.writeFile('baemin-menu-info.json', response);
         res.json({ success: true, data: response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get All Menuse and Options error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch get all menus and options', error: error.message });
     }
@@ -231,7 +237,7 @@ router.post('/soldout-menus', async (req, res) => {
             shopOwnerNumber: body.shopOwnerNumber || parsed.owner.shopOwnerNumber,
         }
 
-        const menus = await BaeminService.soldoutMenus(params);
+        const menus = await BaeminService.soldoutMenus(params, page, browser);
         const options = await BaeminService.soldoutOptions(params, menus.page, menus.browser);
         options.browser.close();
 
@@ -239,6 +245,7 @@ router.post('/soldout-menus', async (req, res) => {
 
         res.json({ success: true, data: response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('soldout menus error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch soldout', error: error.message });
     }
@@ -267,7 +274,7 @@ router.post('/active-menus', async (req, res) => {
             shopOwnerNumber: body.shopOwnerNumber || parsed.owner.shopOwnerNumber,
         }
 
-        const menus = await BaeminService.activeMenus(params);
+        const menus = await BaeminService.activeMenus(params, page, browser);
         const options = await BaeminService.activeOptions(params, menus.page, menus.browser);
         options.browser.close();
 
@@ -275,6 +282,7 @@ router.post('/active-menus', async (req, res) => {
 
         res.json({ success: true, data: response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('active menus error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch active', error: error.message });
     }

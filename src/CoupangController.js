@@ -5,13 +5,15 @@ import common from './common/CommonService.js';
 
 const router = express.Router();
 
+let page, browser;
+
 router.get('/login', async (req, res) => {
     try {
         const userInfo = req.query;
         if (!userInfo?.id || !userInfo.password) {
             return res.status(400).json({ success: false, message: 'ID and password must not be empty.'});
         }
-        const data = await CoupangService.login(userInfo);
+        const data = await CoupangService.login(userInfo, page, browser);
 
         data.browser.close(); // Close the browser after fetching shop info
 
@@ -20,6 +22,7 @@ router.get('/login', async (req, res) => {
         }
         res.json({ success: true, message: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Login error:', error);
         res.status(500).json({ success: false, message: 'Login failed', error: error.message });
     }
@@ -35,7 +38,7 @@ router.get('/shop-info', async (req, res) => {
     }
 
     try {
-        const data = await CoupangService.getShopInfo();
+        const data = await CoupangService.getShopInfo({}, page, browser);
 
         data.browser.close(); // Close the browser after fetching shop info
 
@@ -46,6 +49,7 @@ router.get('/shop-info', async (req, res) => {
         await common.writeFile('coupang-shop-info.json', data.response);
         res.json({ success: true, data: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get shop info error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch shop info', error: error.message });
     }
@@ -68,8 +72,6 @@ router.get('/all-menus', async (req, res) => {
         const params = {
             shopId: parsed[0]?.id
         }
-
-        let page = null, browser = null;
 
         const menus = await CoupangService.getMenus(params, page, browser);
 
@@ -98,6 +100,7 @@ router.get('/all-menus', async (req, res) => {
         await common.writeFile('coupang-menu-info.json', response);
         res.json({ success: true, data: response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get All Menuse and Options error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch get all menus and options', error: error.message });
     }
@@ -127,7 +130,7 @@ router.post('/soldout-menus', async (req, res) => {
             status: 'SOLD_OUT_TODAY'
         }
 
-        const menus = await CoupangService.updateMenus(params);
+        const menus = await CoupangService.updateMenus(params, page, browser);
         const options = await CoupangService.updateOptions(params, menus.page, menus.browser);
         options.browser.close();
 
@@ -135,6 +138,7 @@ router.post('/soldout-menus', async (req, res) => {
 
         res.json({ success: true, data: response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('soldout menus error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch soldout', error: error.message });
     }
@@ -164,7 +168,7 @@ router.post('/active-menus', async (req, res) => {
             status: 'ON_SALE'
         }
 
-        const menus = await CoupangService.updateMenus(params);
+        const menus = await CoupangService.updateMenus(params, page, browser);
         const options = await CoupangService.updateOptions(params, menus.page, menus.browser);
         options.browser.close();
 
@@ -172,6 +176,7 @@ router.post('/active-menus', async (req, res) => {
 
         res.json({ success: true, data: response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('soldout menus error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch soldout', error: error.message });
     }

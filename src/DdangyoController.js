@@ -5,13 +5,15 @@ import common from './common/CommonService.js';
 
 const router = express.Router();
 
+let page, browser;
+
 router.get('/login', async (req, res) => {
     try {
         const userInfo = req.query;
         if (!userInfo?.id || !userInfo.password) {
             return res.status(400).json({ success: false, message: 'ID and password must not be empty.'});
         }
-        const data = await DdangyoService.login(userInfo);
+        const data = await DdangyoService.login(userInfo, page, browser);
 
         data.browser.close(); // Close the browser after fetching shop info
 
@@ -20,6 +22,7 @@ router.get('/login', async (req, res) => {
         }
         res.json({ success: true, message: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Login error:', error);
         res.status(500).json({ success: false, message: 'Login failed', error: error.message });
     }
@@ -35,7 +38,7 @@ router.get('/shop-info', async (req, res) => {
     }
 
     try {
-        const data = await DdangyoService.getShopInfo();
+        const data = await DdangyoService.getShopInfo({}, page, browser);
 
         data.browser.close(); // Close the browser after fetching shop info
 
@@ -46,6 +49,7 @@ router.get('/shop-info', async (req, res) => {
         await common.writeFile('ddangyo-shop-info.json', data.response);
         res.json({ success: true, data: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get shop info error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch shop info', error: error.message });
     }
@@ -70,7 +74,7 @@ router.get('/menu-list', async (req, res) => {
             },
         }
 
-        const data = await DdangyoService.getMenus(params);
+        const data = await DdangyoService.getMenus(params, page, browser);
 
         data.browser.close(); // Close the browser after fetching menu list
 
@@ -80,6 +84,7 @@ router.get('/menu-list', async (req, res) => {
 
         res.json({ success: true, data: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get menu list error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch menu list', error: error.message });
     }
@@ -108,7 +113,7 @@ router.get('/option-list', async (req, res) => {
             },
         }
 
-        const data = await DdangyoService.getOptions(params);
+        const data = await DdangyoService.getOptions(params, page, browser);
 
         data.browser.close(); // Close the browser after fetching option list
 
@@ -118,6 +123,7 @@ router.get('/option-list', async (req, res) => {
 
         res.json({ success: true, data: data.response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get option list error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch option list', error: error.message });
     }
@@ -154,8 +160,6 @@ router.get('/all-menus', async (req, res) => {
             },
         }
 
-        let page = null, browser = null;
-
         const menus = await DdangyoService.getMenus(params, page, browser);
 
         page = menus.page;
@@ -170,6 +174,7 @@ router.get('/all-menus', async (req, res) => {
         await common.writeFile('ddangyo-menu-info.json', response);
         res.json({ success: true, data: response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('Get All Menuse and Options error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch get all menus and options', error: error.message });
     }
@@ -191,8 +196,6 @@ router.post('/soldout-menus', async (req, res) => {
         if (!parsed || !parsed.rpsnt_patsto_no) {
             return res.status(400).json({ success: false, message: 'rpsnt_patsto_no not found in shop info' });
         }
-
-        let page, browser;
 
         console.log(`menus: ${menus}`);
 
@@ -255,6 +258,7 @@ router.post('/soldout-menus', async (req, res) => {
 
         res.json({ success: true, data: response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('soldout menus error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch soldout', error: error.message });
     }
@@ -276,8 +280,6 @@ router.post('/active-menus', async (req, res) => {
         if (!parsed || !parsed.rpsnt_patsto_no) {
             return res.status(400).json({ success: false, message: 'rpsnt_patsto_no not found in shop info' });
         }
-
-        let page, browser;
 
         for (const menu of menus) {
             const params = {
@@ -340,6 +342,7 @@ router.post('/active-menus', async (req, res) => {
 
         res.json({ success: true, data: response });
     } catch (error) {
+        if (browser) browser.close();
         console.error('active menus error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch active', error: error.message });
     }
