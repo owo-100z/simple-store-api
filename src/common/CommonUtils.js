@@ -53,8 +53,8 @@ const common = {
 
             page.on('response', async response => {
                 const url = response.url();
-                const method = request.method();
-                if (url.includes('https://self-api.baemin.com') && method === 'GET') {
+                const status = response.status();
+                if (status !== 200 && url.includes('https://self-api.baemin.com')) {
                     console.log('Filtered Response:', response.status(), url);
                     try {
                         const data = await response.json();
